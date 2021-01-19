@@ -117,6 +117,23 @@ namespace AndcultureCode.GB.Presentation.Web.Controllers.Api.V1.UserLogins
             return Ok(_mapper.Map<UserLoginDto>(findResult.ResultObject));
         }
 
+        [HttpGet]
+        public IActionResult Index()
+        {
+            if (CurrentUserId == null)
+            {
+                return Ok(Enumerable.Empty<UserLoginDto>());
+            }
+
+            var findResult = _conductor.FindAll((e) => e.UserId == CurrentUserId);
+            if (findResult.HasErrorsOrResultIsNull())
+            {
+                return InternalError<UserLoginDto>(findResult.Errors, _logger);
+            }
+
+            return Ok(_mapper.Map<List<UserLoginDto>>(findResult.ResultObject));
+        }
+
         #endregion GET
 
         #region POST

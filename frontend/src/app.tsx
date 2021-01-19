@@ -15,6 +15,7 @@ import GlobalStateContext, {
 } from "utilities/contexts/use-global-state-context";
 import ServiceUtils from "utilities/service-utils";
 import {
+    CollectionUtils,
     CoreUtils,
     LocalizationUtils,
     ScrollUtils,
@@ -36,6 +37,7 @@ import {
 import { AppConstants } from "constants/app-constants";
 import UserLoginService from "utilities/services/user-login-service";
 import useIdentity from "utilities/hooks/use-identity";
+import UserLoginRecord from "models/view-models/user-login-record";
 
 // -----------------------------------------------------------------------------------------
 // #region Application Component
@@ -44,7 +46,10 @@ import useIdentity from "utilities/hooks/use-identity";
 const App: React.FC = () => {
     const { getIdentity } = useIdentity();
     const { get: getUserLoginApi } = UserLoginService.useGetFromCookie();
+    const { list: listUserLoginApi } = UserLoginService.useList();
     const [loading, setLoading] = useState(true);
+    const [loadingUserLogins, setLoadingUserLogins] = useState(false);
+    const [userLogins, setUserLogins] = useState<Array<UserLoginRecord>>([]);
 
     const globalStateRecord = getInitialGlobalState();
     const [globalState, setGlobalState] = useState(globalStateRecord);
@@ -96,6 +101,20 @@ const App: React.FC = () => {
         getUserLogin();
     }, [getUserLoginApi, globalState, getIdentity]);
 
+    useEffect(() => {
+        if (loadingUserLogins || CollectionUtils.hasValues(userLogins)) {
+            return;
+        }
+
+        const listUserLogins = async () => {
+            setLoadingUserLogins(true);
+            const { resultObjects } = await listUserLoginApi();
+            setUserLogins(resultObjects);
+            setLoadingUserLogins(false);
+        };
+
+        listUserLogins();
+    }, [userLogins, loadingUserLogins, setLoadingUserLogins, listUserLoginApi]);
     if (loading) {
         return null;
     }

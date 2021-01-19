@@ -50,6 +50,11 @@ const UserLoginService = {
         UserLoginRecord,
         UserLoginPathParams
     >(resourceType, baseEndpointFromCookie),
+
+    useList: ServiceHookFactory.useList<UserLoginRecord, undefined>(
+        resourceType,
+        baseEndpoint
+    ),
 };
 
 // #endregion Service
